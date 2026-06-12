@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Políticas que la app puede usar al ser configurada como "Device Owner"
+  (Fase 2). Esto permite activar Lock Task Mode automáticamente, sin que
+  el padre tenga que "fijar" la pantalla manualmente cada vez.
+
+  Por ahora, en la Fase 1, este admin NO está activo (no se pide al
+  usuario). Queda listo para cuando se configure vía ADB.
+-->
+<device-admin xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-policies>
+        <limit-password />
+        <watch-login />
+        <force-lock />
+        <wipe-data />
+        <expire-password />
+        <encrypted-storage />
+        <disable-camera />
+        <disable-keyguard-features />
+    </uses-policies>
+</device-admin>
