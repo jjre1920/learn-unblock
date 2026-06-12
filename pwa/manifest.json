@@ -1,0 +1,32 @@
+{
+  "name": "Learn & Unblock — Misión Espacial",
+  "short_name": "Learn & Unblock",
+  "description": "Juego educativo de misiones espaciales: responde preguntas para desbloquear tu pantalla.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#05001a",
+  "theme_color": "#05001a",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

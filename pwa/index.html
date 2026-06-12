@@ -1,9 +1,26 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Learn & Unblock — Misión Espacial</title>
+
+<!-- PWA: instalación y modo standalone -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#05001a">
+<meta name="background-color" content="#05001a">
+
+<!-- iOS: instalar como app a pantalla completa -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Learn & Unblock">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<!-- Iconos -->
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
@@ -15,10 +32,10 @@
 }
 html, body { width: 100%; height: 100%; overflow: hidden; }
 body { background: var(--deep); font-family: 'Nunito', sans-serif; color: #fff; cursor: none; }
-
+ 
 /* ── BG CANVAS always behind everything ── */
 #bg-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
-
+ 
 /* ── SCREENS ── */
 .screen {
   position: fixed; inset: 0; z-index: 20;
@@ -27,7 +44,7 @@ body { background: var(--deep); font-family: 'Nunito', sans-serif; color: #fff; 
   padding: 24px;
 }
 .screen.hidden { display: none; }
-
+ 
 /* ── CROSSHAIR ── */
 #crosshair {
   position: fixed; z-index: 999; pointer-events: none;
@@ -42,7 +59,7 @@ body { background: var(--deep); font-family: 'Nunito', sans-serif; color: #fff; 
   animation: ch-pulse 1.5s ease-in-out infinite;
 }
 @keyframes ch-pulse { 0%,100%{transform:scale(1);opacity:.7} 50%{transform:scale(1.25);opacity:1} }
-
+ 
 /* ── SHARED UI ── */
 .logo {
   font-family:'Orbitron',sans-serif; font-weight:900;
@@ -81,14 +98,14 @@ body { background: var(--deep); font-family: 'Nunito', sans-serif; color: #fff; 
 }
 .btn-sm:hover { opacity:.75; }
 .btn-sm-danger { background:rgba(255,50,50,.2); color:#ff6666; border:1px solid rgba(255,50,50,.3); }
-
+ 
 /* ── INTRO ── */
 #screen-intro { background:rgba(5,0,26,.88); }
-
+ 
 /* ── GAME SCREEN HUD ── */
 #screen-game {
   background: transparent;
-  pointer-events: none;   /* HUD não intercepta clicks */
+  pointer-events: none;
   justify-content: space-between; padding:20px;
 }
 .hud-top { display:flex; justify-content:space-between; align-items:flex-start; width:100%; }
@@ -111,15 +128,14 @@ body { background: var(--deep); font-family: 'Nunito', sans-serif; color: #fff; 
 .prog-labels { display:flex; justify-content:space-between; font-size:.6rem; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.35); margin-bottom:5px; }
 .prog-bar { height:5px; background:rgba(255,255,255,.08); border-radius:99px; overflow:hidden; }
 .prog-fill { height:100%; background:linear-gradient(90deg,var(--cyan),var(--green)); border-radius:99px; transition:width .4s ease; }
-
+ 
 /* ── TARGETS LAYER ── */
-/* Este div está encima del canvas y recibe todos los clicks */
 #targets-layer {
   position: fixed; inset: 0; z-index: 10;
-  pointer-events: none; /* activo solo cuando hay targets */
+  pointer-events: none;
 }
 #targets-layer.active { pointer-events: all; }
-
+ 
 .target {
   position: absolute;
   transform: translate(-50%, -50%);
@@ -143,9 +159,9 @@ body { background: var(--deep); font-family: 'Nunito', sans-serif; color: #fff; 
 .tc-b { background:var(--magenta); color:#fff;        box-shadow:0 0 22px rgba(255,60,172,.6); }
 .tc-c { background:var(--gold);    color:var(--deep); box-shadow:0 0 22px rgba(255,215,0,.6); }
 .tc-d { background:var(--green);   color:var(--deep); box-shadow:0 0 22px rgba(57,255,20,.6); }
-
+ 
 @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-16px)} }
-
+ 
 .target.hit-ok .target-inner { background:var(--green)!important; box-shadow:0 0 40px var(--green)!important; }
 .target.hit-no .target-inner { background:#ff2222!important; box-shadow:0 0 40px #ff2222!important; }
 @keyframes shake {
@@ -153,7 +169,7 @@ body { background: var(--deep); font-family: 'Nunito', sans-serif; color: #fff; 
   25%{transform:translate(calc(-50% - 8px),-50%)}
   75%{transform:translate(calc(-50% + 8px),-50%)}
 }
-
+ 
 /* ── FEEDBACK FLASH ── */
 #shot-flash {
   position:fixed; inset:0; z-index:900;
@@ -167,14 +183,14 @@ body { background: var(--deep); font-family: 'Nunito', sans-serif; color: #fff; 
   background:rgba(0,0,0,.5); padding:12px 30px; border-radius:99px;
 }
 #shot-flash.show { opacity:1; }
-
+ 
 /* ── REWARD ── */
 #screen-reward { background:rgba(5,0,26,.92); text-align:center; }
 .reward-icon { font-size:5rem; margin-bottom:14px; }
 .reward-title { font-family:'Orbitron',sans-serif; font-weight:900; font-size:clamp(1.4rem,4vw,2.2rem); color:var(--green); text-shadow:0 0 28px var(--green); margin-bottom:10px; }
 .reward-sub { color:rgba(255,255,255,.55); margin-bottom:28px; font-size:1rem; line-height:1.7; }
 .time-badge { display:inline-block; background:linear-gradient(135deg,var(--gold),#ff9500); color:var(--deep); font-family:'Orbitron',sans-serif; font-weight:900; font-size:2rem; padding:14px 38px; border-radius:99px; margin-bottom:28px; box-shadow:0 0 28px rgba(255,215,0,.4); }
-
+ 
 /* ── PARENT ── */
 #screen-parent { background:rgba(5,0,26,.97); justify-content:flex-start; overflow-y:auto; padding-top:28px; cursor:auto; }
 #screen-parent .panel { max-width:660px; margin-bottom:18px; }
@@ -202,6 +218,14 @@ select option { background:#0d0028; }
 .q-item-text strong { display:block; font-size:.9rem; margin-bottom:4px; }
 .q-item-text .aprev { font-size:.72rem; color:rgba(255,255,255,.35); }
 .q-item-text .aprev .ok { color:var(--green); font-weight:700; }
+.q-item-text .tags { margin-top:4px; display:flex; gap:6px; flex-wrap:wrap; }
+.q-item-text .tag {
+  font-family:'Orbitron',sans-serif; font-size:.55rem; letter-spacing:.08em; text-transform:uppercase;
+  padding:2px 8px; border-radius:99px; background:rgba(0,245,255,.08); color:var(--cyan);
+  border:1px solid rgba(0,245,255,.25);
+}
+.q-item-text .tag.diff-2 { background:rgba(255,215,0,.08); color:var(--gold); border-color:rgba(255,215,0,.25); }
+.q-item-text .tag.diff-3 { background:rgba(255,60,172,.08); color:var(--magenta); border-color:rgba(255,60,172,.25); }
 .time-ctrl { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
 .time-ctrl strong { font-size:2rem; font-family:'Orbitron',sans-serif; color:var(--gold); }
 .time-ctrl span { font-size:.82rem; color:rgba(255,255,255,.4); }
@@ -223,7 +247,26 @@ select option { background:#0d0028; }
   white-space:nowrap; box-shadow:0 0 20px rgba(57,255,20,.5);
 }
 .toast.show { opacity:1; }
-
+ 
+/* ── PROGRESS REPORT ── */
+.report-grid { display:flex; flex-direction:column; gap:12px; }
+.report-item {
+  background:rgba(255,255,255,.04); border:1px solid var(--border);
+  border-radius:12px; padding:14px 16px;
+}
+.report-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px; }
+.report-name { font-family:'Orbitron',sans-serif; font-size:.8rem; letter-spacing:.05em; color:#fff; }
+.report-level {
+  font-family:'Orbitron',sans-serif; font-size:.6rem; letter-spacing:.1em; text-transform:uppercase;
+  padding:4px 12px; border-radius:99px; white-space:nowrap;
+}
+.lvl-1 { background:rgba(57,255,20,.12); color:var(--green); border:1px solid rgba(57,255,20,.3); }
+.lvl-2 { background:rgba(255,215,0,.12); color:var(--gold); border:1px solid rgba(255,215,0,.3); }
+.lvl-3 { background:rgba(255,60,172,.12); color:var(--magenta); border:1px solid rgba(255,60,172,.3); }
+.report-bar { height:8px; background:rgba(255,255,255,.08); border-radius:99px; overflow:hidden; margin-bottom:6px; }
+.report-bar-fill { height:100%; border-radius:99px; background:linear-gradient(90deg,var(--cyan),var(--green)); transition:width .4s ease; }
+.report-meta { font-size:.72rem; color:rgba(255,255,255,.4); display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px; }
+ 
 /* ── LANDING ── */
 #screen-landing {
   overflow-y: auto; overflow-x: hidden;
@@ -249,7 +292,7 @@ select option { background:#0d0028; }
   text-decoration:none; transition:color .2s;
 }
 .land-nav-links a:hover { color:#fff; }
-
+ 
 /* HERO */
 .land-hero {
   min-height: 100vh; display:flex; flex-direction:column;
@@ -286,7 +329,7 @@ select option { background:#0d0028; }
 }
 .hstat strong { display:block; font-family:'Orbitron',sans-serif; font-size:1.6rem; color:var(--gold); }
 .hstat span { font-size:.72rem; color:rgba(255,255,255,.35); letter-spacing:.1em; text-transform:uppercase; }
-
+ 
 /* SECTIONS */
 .land-section {
   padding: 80px 24px;
@@ -301,7 +344,7 @@ select option { background:#0d0028; }
   font-size:clamp(1.5rem,4vw,2.5rem); color:#fff; margin-bottom:16px; line-height:1.2;
 }
 .section-desc { font-size:1rem; color:rgba(255,255,255,.5); max-width:560px; line-height:1.8; margin-bottom:40px; }
-
+ 
 /* FEATURE CARDS */
 .feat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:20px; }
 .feat-card {
@@ -313,7 +356,7 @@ select option { background:#0d0028; }
 .feat-icon { font-size:2rem; margin-bottom:14px; }
 .feat-title { font-family:'Orbitron',sans-serif; font-weight:700; font-size:.85rem; letter-spacing:.08em; color:#fff; margin-bottom:8px; }
 .feat-desc { font-size:.88rem; color:rgba(255,255,255,.45); line-height:1.7; }
-
+ 
 /* HOW IT WORKS */
 .steps { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:24px; }
 .step {
@@ -330,14 +373,14 @@ select option { background:#0d0028; }
 .step-icon { font-size:2.2rem; margin-bottom:12px; }
 .step-title { font-family:'Orbitron',sans-serif; font-size:.78rem; letter-spacing:.1em; color:#fff; margin-bottom:8px; }
 .step-desc { font-size:.83rem; color:rgba(255,255,255,.4); line-height:1.7; }
-
+ 
 /* DIVIDER */
 .land-divider {
   width:100%; height:1px;
   background:linear-gradient(90deg,transparent,var(--border),transparent);
   margin:0 auto; max-width:900px;
 }
-
+ 
 /* CTA BLOCK */
 .land-cta {
   text-align:center; padding:80px 24px;
@@ -346,7 +389,7 @@ select option { background:#0d0028; }
 }
 .land-cta .section-title { margin-bottom:10px; }
 .land-cta .section-desc { margin:0 auto 32px; }
-
+ 
 /* FOOTER */
 .land-footer {
   text-align:center; padding:32px 24px;
@@ -357,25 +400,25 @@ select option { background:#0d0028; }
 </style>
 </head>
 <body>
-
+ 
 <!-- BG -->
 <canvas id="bg-canvas"></canvas>
-
+ 
 <!-- Crosshair -->
 <div id="crosshair"><div class="ch-ring"></div></div>
-
+ 
 <!-- Shot flash feedback -->
 <div id="shot-flash"><div class="flash-text" id="flash-text"></div></div>
-
+ 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
-
+ 
 <!-- TARGETS — z-index 10, above canvas, below HUD screens -->
 <div id="targets-layer"></div>
-
+ 
 <!-- ══ LANDING PAGE ══ -->
 <div class="screen" id="screen-landing">
-
+ 
   <!-- NAV -->
   <nav class="land-nav">
     <div class="land-nav-logo">Learn & Unblock</div>
@@ -386,7 +429,7 @@ select option { background:#0d0028; }
       <button class="btn btn-primary" style="padding:8px 22px;font-size:.65rem;" onclick="show('intro')">Entrar al Juego →</button>
     </div>
   </nav>
-
+ 
   <!-- HERO -->
   <div class="land-hero">
     <div class="hero-badge">🚀 Plataforma Educativa Gamificada</div>
@@ -397,7 +440,7 @@ select option { background:#0d0028; }
     </p>
     <div class="hero-btns">
       <button class="btn btn-primary" onclick="show('intro')">🎮 Iniciar Misión</button>
-      <button class="btn btn-secondary" onclick="scrollTo('sec-como')">Ver cómo funciona ↓</button>
+      <button class="btn btn-secondary" onclick="document.getElementById('sec-como').scrollIntoView({behavior:'smooth'})">Ver cómo funciona ↓</button>
     </div>
     <div class="hero-stats">
       <div class="hstat"><strong>+50🪙</strong><span>por respuesta correcta</span></div>
@@ -406,9 +449,9 @@ select option { background:#0d0028; }
       <div class="hstat"><strong>100%</strong><span>configurable</span></div>
     </div>
   </div>
-
+ 
   <div class="land-divider"></div>
-
+ 
   <!-- CÓMO FUNCIONA -->
   <div class="land-section" id="sec-como">
     <div class="section-eyebrow">El mecanismo</div>
@@ -443,9 +486,9 @@ select option { background:#0d0028; }
       </div>
     </div>
   </div>
-
+ 
   <div class="land-divider"></div>
-
+ 
   <!-- FUNCIONES -->
   <div class="land-section" id="sec-funciones">
     <div class="section-eyebrow">Características</div>
@@ -494,9 +537,9 @@ select option { background:#0d0028; }
       </div>
     </div>
   </div>
-
+ 
   <div class="land-divider"></div>
-
+ 
   <!-- PARA PADRES -->
   <div class="land-section" id="sec-padres">
     <div class="section-eyebrow">Panel Parental</div>
@@ -527,7 +570,7 @@ select option { background:#0d0028; }
       </div>
     </div>
   </div>
-
+ 
   <!-- CTA FINAL -->
   <div class="land-cta">
     <div class="section-eyebrow" style="margin-bottom:10px;">¿Listo para empezar?</div>
@@ -540,13 +583,13 @@ select option { background:#0d0028; }
       <button class="btn btn-secondary" onclick="show('parent'); renderParent();">⚙️ Ir al Panel de Padres</button>
     </div>
   </div>
-
+ 
   <div class="land-footer">
     Learn & Unblock © 2026 — Arquitecto: Jesús Rubio Escutia — Hecho con propósito 🛸
   </div>
-
+ 
 </div>
-
+ 
 <!-- ══ INTRO ══ -->
 <div class="screen hidden" id="screen-intro">
   <div class="logo">LEARN &<br>UNBLOCK</div>
@@ -563,7 +606,7 @@ select option { background:#0d0028; }
   </div>
   <button onclick="show('landing')" style="margin-top:20px;background:none;border:none;color:rgba(255,255,255,.3);font-family:'Orbitron',sans-serif;font-size:.6rem;letter-spacing:.12em;cursor:pointer;text-transform:uppercase;">← Volver al Inicio</button>
 </div>
-
+ 
 <!-- ══ GAME HUD (transparent, pointer-events:none) ══ -->
 <div class="screen hidden" id="screen-game">
   <div class="hud-top">
@@ -585,25 +628,25 @@ select option { background:#0d0028; }
     <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
   </div>
 </div>
-
+ 
 <!-- ══ REWARD ══ -->
 <div class="screen hidden" id="screen-reward">
   <div class="reward-icon">🔓</div>
   <div class="reward-title">¡MISIÓN COMPLETADA!</div>
-  <div class="reward-sub">Respondiste todo correctamente.<br>Tu tiempo libre está desbloqueado.</div>
+  <div class="reward-sub" id="reward-sub">Respondiste todo correctamente.<br>Tu tiempo libre está desbloqueado.</div>
   <div class="time-badge" id="reward-time">⏱ 15 min</div>
   <div class="btn-group">
     <button class="btn btn-success" id="btn-again">🎮 Nueva Misión</button>
     <button class="btn btn-secondary" id="btn-home">🏠 Inicio</button>
   </div>
 </div>
-
+ 
 <!-- ══ PARENT ══ -->
 <div class="screen hidden" id="screen-parent">
   <button class="back-btn" id="btn-back">← Salir</button>
   <div class="parent-header">⚙️ Panel de Padres</div>
-  <div class="parent-sub">Configura preguntas y tiempo de recompensa</div>
-
+  <div class="parent-sub">Configura preguntas, dificultad y consulta el progreso</div>
+ 
   <div class="panel">
     <div class="panel-title">Recompensa de Tiempo</div>
     <div class="time-ctrl">
@@ -613,7 +656,13 @@ select option { background:#0d0028; }
       <span>minutos por misión completada</span>
     </div>
   </div>
-
+ 
+  <div class="panel">
+    <div class="panel-title">📊 Reporte de Progreso</div>
+    <div class="report-grid" id="report-grid"></div>
+    <button class="btn btn-secondary" id="btn-reset-progress" style="width:100%;margin-top:14px;font-size:.65rem;">↺ Reiniciar Progreso</button>
+  </div>
+ 
   <div class="panel">
     <div class="panel-title">Nueva Pregunta</div>
     <div class="form-row">
@@ -640,33 +689,92 @@ select option { background:#0d0028; }
           <option value="3">Opción D</option>
         </select>
       </div>
+      <div class="form-group" style="max-width:220px;">
+        <label>Materia</label>
+        <select id="inp-materia">
+          <option value="Matemáticas">Matemáticas</option>
+          <option value="Ciencias">Ciencias</option>
+          <option value="Geografía">Geografía</option>
+          <option value="Español">Español</option>
+          <option value="Inglés">Inglés</option>
+          <option value="Historia">Historia</option>
+          <option value="General">General</option>
+        </select>
+      </div>
+      <div class="form-group" style="max-width:220px;">
+        <label>Dificultad</label>
+        <select id="inp-dificultad">
+          <option value="1">Fácil</option>
+          <option value="2">Medio</option>
+          <option value="3">Difícil</option>
+        </select>
+      </div>
     </div>
     <button class="btn btn-primary" id="btn-add" style="width:100%;margin-top:6px;">+ Agregar Pregunta</button>
   </div>
-
+ 
   <div class="panel">
     <div class="panel-title">Banco de Preguntas (<span id="q-count">0</span>)</div>
     <div class="q-list" id="q-list"></div>
   </div>
 </div>
-
+ 
 <script>
 // ═══════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════
+const DIFF_LABELS = { 1:'Fácil', 2:'Medio', 3:'Difícil' };
+ 
 const S = {
   questions: [
-    { q:"¿Cuánto es 7 × 8?",           answers:["54","56","64","48"],          correct:1 },
-    { q:"¿Cuántos lados tiene un hexágono?", answers:["5","7","6"],             correct:2 },
-    { q:"¿Capital de México?",          answers:["Guadalajara","Monterrey","CDMX","Puebla"], correct:2 },
-    { q:"¿Planeta más cercano al Sol?", answers:["Venus","Mercurio","Marte","Tierra"],     correct:1 },
+    { q:"¿Cuánto es 7 × 8?",           answers:["54","56","64","48"],          correct:1, materia:"Matemáticas", dificultad:2 },
+    { q:"¿Cuántos lados tiene un hexágono?", answers:["5","7","6"],             correct:2, materia:"Matemáticas", dificultad:1 },
+    { q:"¿Capital de México?",          answers:["Guadalajara","Monterrey","CDMX","Puebla"], correct:2, materia:"Geografía", dificultad:1 },
+    { q:"¿Planeta más cercano al Sol?", answers:["Venus","Mercurio","Marte","Tierra"],     correct:1, materia:"Ciencias", dificultad:1 },
   ],
   rewardMin: 15,
+  progress: {},
+  levels: {},
   idx: 0, coins: 0, shuffled: [], blocked: false,
+  streaks: {},
 };
-
+ 
 // ═══════════════════════════════════════════════
-// THREE.JS BACKGROUND (pointer-events:none canvas)
+// PERSISTENCIA (localStorage)
+// ═══════════════════════════════════════════════
+const STORAGE_KEY = 'learnUnblockData_v1';
+ 
+function saveData(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      questions: S.questions,
+      rewardMin: S.rewardMin,
+      progress: S.progress,
+      levels: S.levels,
+    }));
+  }catch(e){ console.warn('No se pudo guardar el progreso', e); }
+}
+ 
+function loadData(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    const data = JSON.parse(raw);
+    if(Array.isArray(data.questions) && data.questions.length){
+      S.questions = data.questions.map(q => ({
+        q: q.q, answers: q.answers, correct: q.correct,
+        materia: q.materia || 'General',
+        dificultad: q.dificultad || 1,
+      }));
+    }
+    if(typeof data.rewardMin === 'number') S.rewardMin = data.rewardMin;
+    if(data.progress) S.progress = data.progress;
+    if(data.levels) S.levels = data.levels;
+  }catch(e){ console.warn('No se pudo cargar el progreso guardado', e); }
+}
+ 
+// ═══════════════════════════════════════════════
+// THREE.JS BACKGROUND
 // ═══════════════════════════════════════════════
 (function() {
   const cvs = document.getElementById('bg-canvas');
@@ -676,7 +784,7 @@ const S = {
   const scene = new THREE.Scene();
   const cam = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, .1, 2000);
   cam.position.z = 5;
-
+ 
   const N = 3500, pos = new Float32Array(N*3), spd = new Float32Array(N);
   for (let i=0;i<N;i++){
     pos[i*3]   = (Math.random()-.5)*1400;
@@ -687,14 +795,14 @@ const S = {
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
   scene.add(new THREE.Points(geo, new THREE.PointsMaterial({ color:0xffffff, size:1.6, transparent:true, blending:THREE.AdditiveBlending, depthWrite:false })));
-
+ 
   const mkRing = (r,c,ox=0,oy=0) => {
     const m = new THREE.Mesh(new THREE.TorusGeometry(r,.07,8,80), new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.15}));
     m.rotation.x=ox; m.rotation.y=oy; scene.add(m); return m;
   };
   const r1 = mkRing(18,0xff3cac,0,.3);
   const r2 = mkRing(13,0x00f5ff,1.1,.1);
-
+ 
   (function loop(){
     requestAnimationFrame(loop);
     for(let i=0;i<N;i++){pos[i*3+2]+=spd[i]; if(pos[i*3+2]>600)pos[i*3+2]=-1000;}
@@ -703,13 +811,13 @@ const S = {
     r2.rotation.z-=.004; r2.rotation.x+=.001;
     renderer.render(scene,cam);
   })();
-
+ 
   window.addEventListener('resize',()=>{
     cam.aspect=innerWidth/innerHeight; cam.updateProjectionMatrix();
     renderer.setSize(innerWidth,innerHeight);
   });
 })();
-
+ 
 // ═══════════════════════════════════════════════
 // CROSSHAIR
 // ═══════════════════════════════════════════════
@@ -718,7 +826,7 @@ document.addEventListener('mousemove', e => {
   xhair.style.left = e.clientX+'px';
   xhair.style.top  = e.clientY+'px';
 });
-
+ 
 // ═══════════════════════════════════════════════
 // SCREENS
 // ═══════════════════════════════════════════════
@@ -727,119 +835,181 @@ function show(name){
   screens.forEach(id => {
     document.getElementById('screen-'+id).classList.toggle('hidden', id!==name);
   });
-  // Enable targets layer only in game
   document.getElementById('targets-layer').classList.toggle('active', name==='game');
-  // Show/hide crosshair
   xhair.style.display = (name==='game') ? 'block' : 'none';
-  // Cursor: normal on landing/parent, none in game/intro/reward
   const normalCursor = ['landing','parent'].includes(name);
   document.body.style.cursor = normalCursor ? 'auto' : 'none';
-  // Scroll landing to top when shown
   if(name==='landing') document.getElementById('screen-landing').scrollTop = 0;
 }
-
-// Smooth scroll inside the landing container (fixed div with overflow-y:auto)
-function scrollTo(id){
-  const container = document.getElementById('screen-landing');
-  const target = document.getElementById(id);
-  if(!container || !target) return;
-  // getBoundingClientRect gives position relative to viewport; adjust by container scroll
-  const containerRect = container.getBoundingClientRect();
-  const targetRect    = target.getBoundingClientRect();
-  const offset = container.scrollTop + (targetRect.top - containerRect.top) - 80;
-  container.scrollTo({ top: offset, behavior: 'smooth' });
-}
-
+ 
+function scrollTo(id){ document.getElementById(id).scrollIntoView({behavior:'smooth'}); }
+ 
 // ═══════════════════════════════════════════════
 // TOAST
 // ═══════════════════════════════════════════════
 function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); }
-
+ 
 // ═══════════════════════════════════════════════
 // UTILS
 // ═══════════════════════════════════════════════
 function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
-
+ 
+// ═══════════════════════════════════════════════
+// MENSAJES MOTIVADORES
+// ═══════════════════════════════════════════════
+const CORRECT_MESSAGES = [
+  '✅ ¡Correcto! +50 🪙',
+  '🌟 ¡Eres un genio espacial!',
+  '🚀 ¡Imparable, capitán!',
+  '💪 ¡Así se hace!',
+  '🔥 ¡Sigue así!',
+  '🎯 ¡Puntería perfecta!',
+  '🛰️ ¡Misión en marcha!',
+  '⭐ ¡Excelente trabajo!',
+];
+ 
+const WRONG_MESSAGES = [
+  '❌ ¡Casi! Intenta de nuevo',
+  '🤔 No es esa, ¡tú puedes!',
+  '💡 ¡Piensa un poco más!',
+  '🌠 ¡No te rindas, astronauta!',
+  '🔄 ¡Otra oportunidad, vamos!',
+  '🧭 ¡Recalculando ruta... intenta otra vez!',
+];
+ 
+function randomFrom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+ 
+// ═══════════════════════════════════════════════
+// PROGRESO Y NIVELES
+// ═══════════════════════════════════════════════
+function getLevel(materia){
+  return S.levels[materia] || 1;
+}
+ 
+function ensureProgress(materia){
+  if(!S.progress[materia]) S.progress[materia] = { correct:0, total:0 };
+  if(!S.streaks[materia]) S.streaks[materia] = { correct:0, wrong:0 };
+  if(!S.levels[materia]) S.levels[materia] = 1;
+}
+ 
+function registerAnswer(materia, isCorrect){
+  ensureProgress(materia);
+  S.progress[materia].total++;
+  if(isCorrect) S.progress[materia].correct++;
+ 
+  const streak = S.streaks[materia];
+  let levelChanged = false;
+  if(isCorrect){
+    streak.correct++; streak.wrong = 0;
+    if(streak.correct >= 3 && S.levels[materia] < 3){
+      S.levels[materia]++; streak.correct = 0; levelChanged = 'up';
+    }
+  } else {
+    streak.wrong++; streak.correct = 0;
+    if(streak.wrong >= 2 && S.levels[materia] > 1){
+      S.levels[materia]--; streak.wrong = 0; levelChanged = 'down';
+    }
+  }
+  saveData();
+  return levelChanged;
+}
+ 
 // ═══════════════════════════════════════════════
 // GAME
 // ═══════════════════════════════════════════════
 const COLORS = ['tc-a','tc-b','tc-c','tc-d'];
-
+ 
+function pickMissionQuestions(){
+  const withScore = S.questions.map(q=>{
+    const materia = q.materia || 'General';
+    const level = getLevel(materia);
+    const diff = Math.abs((q.dificultad||1) - level);
+    return { q, score: diff };
+  });
+ 
+  let pool = withScore.filter(w => w.score <= 1).map(w => w.q);
+  if(pool.length < Math.min(3, S.questions.length)) pool = S.questions.slice();
+ 
+  return shuffle(pool);
+}
+ 
 function startGame(){
   if(!S.questions.length){ alert("El banco de preguntas está vacío. Pídele a un adulto que agregue preguntas en el Panel de Padres."); return; }
-  S.shuffled = shuffle(S.questions);
+  S.shuffled = pickMissionQuestions();
   S.idx=0; S.coins=0; S.blocked=false;
   show('game');
   loadQ();
 }
-
+ 
 function loadQ(){
   if(S.idx >= S.shuffled.length){ endGame(); return; }
   S.blocked = false;
   const q = S.shuffled[S.idx];
   const total = S.shuffled.length;
   const pct = Math.round((S.idx/total)*100);
-
+ 
   document.getElementById('question-text').textContent = q.q;
   document.getElementById('hud-q').textContent = `${S.idx+1} / ${total}`;
   document.getElementById('hud-coins').textContent = `🪙 ${S.coins}`;
   document.getElementById('prog-fill').style.width = pct+'%';
   document.getElementById('prog-pct').textContent = pct+'%';
-
+ 
   renderTargets(q);
 }
-
+ 
 function renderTargets(q){
   const layer = document.getElementById('targets-layer');
   layer.innerHTML = '';
-
+ 
   const raw = q.answers.map((a,i)=>({text:a,isCorrect:i===q.correct})).filter(a=>a.text.trim()!=='');
   const items = shuffle(raw);
   const n = items.length;
-
-  // Spread positions avoiding edges, no overlap
+ 
   const cols = n <= 2 ? [30,70] : n===3 ? [20,50,80] : [18,38,62,82];
-  const rows = [32, 55, 42, 65]; // alternate rows
+  const rows = [32, 55, 42, 65];
   const usedRows = shuffle([...rows]);
-
+ 
   items.forEach((item, i) => {
     const el = document.createElement('div');
     el.className = 'target';
     el.style.left = cols[i] + '%';
     el.style.top  = (usedRows[i % usedRows.length]) + '%';
     el.style.animationDelay = (i * .4) + 's';
-
+ 
     const inner = document.createElement('div');
     inner.className = `target-inner ${COLORS[i]}`;
     inner.textContent = item.text;
-    // Apply float animation via JS style
     inner.style.animation = `float ${2.5 + i*.5}s ease-in-out ${i*.3}s infinite`;
-
+ 
     el.appendChild(inner);
-
-    // ★ THE FIX: attach click to the target element directly
+ 
     el.addEventListener('click', (e) => {
       e.stopPropagation();
       if(S.blocked) return;
       onShot(el, item.isCorrect);
     });
-
+ 
     layer.appendChild(el);
   });
 }
-
+ 
 function onShot(el, correct){
   S.blocked = true;
   const flash = document.getElementById('shot-flash');
   const ftxt  = document.getElementById('flash-text');
-
-  // Disable all targets immediately
+  const q = S.shuffled[S.idx];
+  const materia = q.materia || 'General';
+ 
   document.querySelectorAll('.target').forEach(t => t.style.pointerEvents='none');
-
+ 
   if(correct){
     el.classList.add('hit-ok');
     S.coins += 50;
-    ftxt.textContent = '✅ ¡CORRECTO! +50 🪙';
+    const levelChanged = registerAnswer(materia, true);
+    let msg = randomFrom(CORRECT_MESSAGES);
+    if(levelChanged === 'up'){ msg = `⬆️ ¡Subiste de nivel en ${materia}!`; audioEngine.playLevelUp(); }
+    else { audioEngine.playCorrect(); }
+    ftxt.textContent = msg;
     ftxt.style.color = 'var(--green)';
     flash.classList.add('show');
     document.getElementById('hud-coins').textContent = `🪙 ${S.coins}`;
@@ -851,34 +1021,86 @@ function onShot(el, correct){
   } else {
     el.classList.add('hit-no');
     el.style.animation = 'shake .35s';
-    ftxt.textContent = '❌ ¡Intenta de nuevo!';
+    audioEngine.playWrong();
+    registerAnswer(materia, false);
+    ftxt.textContent = randomFrom(WRONG_MESSAGES);
     ftxt.style.color = '#ff4444';
     flash.classList.add('show');
     setTimeout(()=>{
       flash.classList.remove('show');
       el.classList.remove('hit-no');
       el.style.animation = '';
-      // Re-enable targets so they can try again
       document.querySelectorAll('.target').forEach(t => t.style.pointerEvents='all');
       S.blocked = false;
     }, 800);
   }
 }
-
+ 
 function endGame(){
+  audioEngine.playVictory();
   document.getElementById('reward-time').textContent = `⏱ ${S.rewardMin} min`;
+  document.getElementById('reward-sub').innerHTML = '¡Buen trabajo, explorador!<br>Tu tiempo libre está desbloqueado.';
   show('reward');
 }
-
+ 
 // ═══════════════════════════════════════════════
 // PARENT PANEL
 // ═══════════════════════════════════════════════
+function renderReport(){
+  const grid = document.getElementById('report-grid');
+ 
+  const materias = new Set();
+  S.questions.forEach(q => materias.add(q.materia || 'General'));
+  Object.keys(S.progress).forEach(m => materias.add(m));
+ 
+  if(!materias.size){
+    grid.innerHTML = `<div class="empty-state"><div class="ei">📊</div>Aún no hay datos de progreso. ¡Juega una misión para empezar!</div>`;
+    return;
+  }
+ 
+  grid.innerHTML = '';
+  [...materias].sort().forEach(materia=>{
+    const prog = S.progress[materia] || { correct:0, total:0 };
+    const level = getLevel(materia);
+    const pct = prog.total ? Math.round((prog.correct/prog.total)*100) : 0;
+ 
+    const div = document.createElement('div');
+    div.className = 'report-item';
+    div.innerHTML = `
+      <div class="report-top">
+        <div class="report-name">${materia}</div>
+        <div class="report-level lvl-${level}">Nivel: ${DIFF_LABELS[level]}</div>
+      </div>
+      <div class="report-bar"><div class="report-bar-fill" style="width:${pct}%"></div></div>
+      <div class="report-meta">
+        <span>${pct}% de aciertos</span>
+        <span>${prog.correct} / ${prog.total} respondidas</span>
+      </div>`;
+    grid.appendChild(div);
+  });
+}
+ 
+document.getElementById('btn-reset-progress').onclick = ()=>{
+  if(!confirm('¿Reiniciar todo el progreso y los niveles? Las preguntas guardadas NO se eliminarán.')) return;
+  S.progress = {};
+  S.levels = {};
+  S.streaks = {};
+  saveData();
+  renderReport();
+  toast('↺ Progreso reiniciado');
+};
+ 
+// ═══════════════════════════════════════════════
+// PARENT PANEL — BANCO
+// ═══════════════════════════════════════════════
 function renderParent(){
   document.getElementById('t-val').textContent = S.rewardMin;
+  renderReport();
+ 
   const list = document.getElementById('q-list');
   const n = S.questions.length;
   document.getElementById('q-count').textContent = n;
-
+ 
   if(!n){
     list.innerHTML = `<div class="empty-state"><div class="ei">🛸</div>Aún no hay preguntas. ¡Agrega la primera arriba!</div>`;
     return;
@@ -889,20 +1111,29 @@ function renderParent(){
     div.className = 'q-item';
     const active = q.answers.filter(a=>a.trim()!=='');
     const prev = active.map((a,ai)=> ai===q.correct ? `<span class="ok">✓ ${a}</span>` : a).join(' · ');
+    const materia = q.materia || 'General';
+    const dificultad = q.dificultad || 1;
     div.innerHTML = `
       <div class="q-item-text">
         <strong>${q.q}</strong>
         <div class="aprev">${prev}</div>
+        <div class="tags">
+          <span class="tag">${materia}</span>
+          <span class="tag diff-${dificultad}">${DIFF_LABELS[dificultad]}</span>
+        </div>
       </div>
       <button class="btn-sm btn-sm-danger" data-i="${i}">Eliminar</button>`;
-    div.querySelector('button').onclick = ()=>{ S.questions.splice(i,1); renderParent(); };
+    div.querySelector('button').onclick = ()=>{ S.questions.splice(i,1); saveData(); renderParent(); };
     list.appendChild(div);
   });
+  
+  // Agregar panel de sonido
+  initAudioControls();
 }
-
-document.getElementById('t-up').onclick   = ()=>{ S.rewardMin=Math.min(120,S.rewardMin+5); document.getElementById('t-val').textContent=S.rewardMin; };
-document.getElementById('t-down').onclick = ()=>{ S.rewardMin=Math.max(5,S.rewardMin-5);  document.getElementById('t-val').textContent=S.rewardMin; };
-
+ 
+document.getElementById('t-up').onclick   = ()=>{ S.rewardMin=Math.min(120,S.rewardMin+5); document.getElementById('t-val').textContent=S.rewardMin; saveData(); };
+document.getElementById('t-down').onclick = ()=>{ S.rewardMin=Math.max(5,S.rewardMin-5);  document.getElementById('t-val').textContent=S.rewardMin; saveData(); };
+ 
 document.getElementById('btn-add').onclick = ()=>{
   const q = document.getElementById('inp-q').value.trim();
   const a = document.getElementById('inp-a').value.trim();
@@ -910,15 +1141,20 @@ document.getElementById('btn-add').onclick = ()=>{
   const c = document.getElementById('inp-c').value.trim();
   const d = document.getElementById('inp-d').value.trim();
   const ci= parseInt(document.getElementById('inp-correct').value);
+  const materia = document.getElementById('inp-materia').value;
+  const dificultad = parseInt(document.getElementById('inp-dificultad').value);
   if(!q||!a||!b||!c){ toast('⚠️ Completa la pregunta y opciones A, B, C'); return; }
   if(ci===3 && !d){ toast('⚠️ La opción D está vacía'); return; }
-  S.questions.push({ q, answers:[a,b,c,d], correct:ci });
+  S.questions.push({ q, answers:[a,b,c,d], correct:ci, materia, dificultad });
+  saveData();
   renderParent();
   toast('✅ Pregunta agregada');
   ['inp-q','inp-a','inp-b','inp-c','inp-d'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('inp-correct').value='0';
+  document.getElementById('inp-materia').value='Matemáticas';
+  document.getElementById('inp-dificultad').value='1';
 };
-
+ 
 // ═══════════════════════════════════════════════
 // NAV
 // ═══════════════════════════════════════════════
@@ -927,11 +1163,33 @@ document.getElementById('btn-parent-open').onclick = ()=>{ show('parent'); rende
 document.getElementById('btn-back').onclick        = ()=>show('landing');
 document.getElementById('btn-again').onclick       = startGame;
 document.getElementById('btn-home').onclick        = ()=>show('landing');
-
+ 
 // ═══════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════
+loadData();
 show('landing');
 </script>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- EXTERNAL SCRIPTS: Audio, Lock, Integration -->
+<!-- ═══════════════════════════════════════════════ -->
+<script src="audio-system.js"></script>
+<script src="realtime-lock.js"></script>
+<script src="audio-integration.js"></script>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- PWA: registro del Service Worker -->
+<!-- ═══════════════════════════════════════════════ -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(reg => console.log('✅ Service Worker registrado:', reg.scope))
+      .catch(err => console.warn('⚠️ Error registrando Service Worker:', err));
+  });
+}
+</script>
+
 </body>
 </html>
