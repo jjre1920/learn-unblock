@@ -1,5 +1,4 @@
 
-Index · HTML
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -90,7 +89,7 @@ body { background: var(--deep); font-family: 'Nunito', sans-serif; color: #fff; 
 /* ── GAME SCREEN HUD ── */
 #screen-game {
   background: transparent;
-  pointer-events: none;   /* HUD não intercepta clicks */
+  pointer-events: none;
   justify-content: space-between; padding:20px;
 }
 .hud-top { display:flex; justify-content:space-between; align-items:flex-start; width:100%; }
@@ -115,10 +114,9 @@ body { background: var(--deep); font-family: 'Nunito', sans-serif; color: #fff; 
 .prog-fill { height:100%; background:linear-gradient(90deg,var(--cyan),var(--green)); border-radius:99px; transition:width .4s ease; }
  
 /* ── TARGETS LAYER ── */
-/* Este div está encima del canvas y recibe todos los clicks */
 #targets-layer {
   position: fixed; inset: 0; z-index: 10;
-  pointer-events: none; /* activo solo cuando hay targets */
+  pointer-events: none;
 }
 #targets-layer.active { pointer-events: all; }
  
@@ -719,12 +717,10 @@ const S = {
     { q:"¿Planeta más cercano al Sol?", answers:["Venus","Mercurio","Marte","Tierra"],     correct:1, materia:"Ciencias", dificultad:1 },
   ],
   rewardMin: 15,
-  // progreso[materia] = { correct, total }
   progress: {},
-  // niveles[materia] = 1 (fácil) | 2 (medio) | 3 (difícil)
   levels: {},
   idx: 0, coins: 0, shuffled: [], blocked: false,
-  streaks: {}, // streaks[materia] = { correct:0, wrong:0 }
+  streaks: {},
 };
  
 // ═══════════════════════════════════════════════
@@ -762,7 +758,7 @@ function loadData(){
 }
  
 // ═══════════════════════════════════════════════
-// THREE.JS BACKGROUND (pointer-events:none canvas)
+// THREE.JS BACKGROUND
 // ═══════════════════════════════════════════════
 (function() {
   const cvs = document.getElementById('bg-canvas');
@@ -823,18 +819,13 @@ function show(name){
   screens.forEach(id => {
     document.getElementById('screen-'+id).classList.toggle('hidden', id!==name);
   });
-  // Enable targets layer only in game
   document.getElementById('targets-layer').classList.toggle('active', name==='game');
-  // Show/hide crosshair
   xhair.style.display = (name==='game') ? 'block' : 'none';
-  // Cursor: normal on landing/parent, none in game/intro/reward
   const normalCursor = ['landing','parent'].includes(name);
   document.body.style.cursor = normalCursor ? 'auto' : 'none';
-  // Scroll landing to top when shown
   if(name==='landing') document.getElementById('screen-landing').scrollTop = 0;
 }
  
-// Smooth scroll helper for landing nav links
 function scrollTo(id){ document.getElementById(id).scrollIntoView({behavior:'smooth'}); }
  
 // ═══════════════════════════════════════════════
@@ -873,7 +864,7 @@ const WRONG_MESSAGES = [
 function randomFrom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
  
 // ═══════════════════════════════════════════════
-// PROGRESO Y NIVELES (DIFICULTAD ADAPTATIVA)
+// PROGRESO Y NIVELES
 // ═══════════════════════════════════════════════
 function getLevel(materia){
   return S.levels[materia] || 1;
@@ -913,16 +904,13 @@ function registerAnswer(materia, isCorrect){
 const COLORS = ['tc-a','tc-b','tc-c','tc-d'];
  
 function pickMissionQuestions(){
-  // Para cada pregunta, calcula su "afinidad" con el nivel actual del niño en esa materia.
-  // Prioriza preguntas con dificultad igual o muy cercana al nivel actual.
   const withScore = S.questions.map(q=>{
     const materia = q.materia || 'General';
     const level = getLevel(materia);
     const diff = Math.abs((q.dificultad||1) - level);
-    return { q, score: diff }; // score menor = mejor encaje
+    return { q, score: diff };
   });
  
-  // Si hay suficientes preguntas con buen encaje (score <= 1), usa esas; si no, usa todas.
   let pool = withScore.filter(w => w.score <= 1).map(w => w.q);
   if(pool.length < Math.min(3, S.questions.length)) pool = S.questions.slice();
  
@@ -961,9 +949,8 @@ function renderTargets(q){
   const items = shuffle(raw);
   const n = items.length;
  
-  // Spread positions avoiding edges, no overlap
   const cols = n <= 2 ? [30,70] : n===3 ? [20,50,80] : [18,38,62,82];
-  const rows = [32, 55, 42, 65]; // alternate rows
+  const rows = [32, 55, 42, 65];
   const usedRows = shuffle([...rows]);
  
   items.forEach((item, i) => {
@@ -976,12 +963,10 @@ function renderTargets(q){
     const inner = document.createElement('div');
     inner.className = `target-inner ${COLORS[i]}`;
     inner.textContent = item.text;
-    // Apply float animation via JS style
     inner.style.animation = `float ${2.5 + i*.5}s ease-in-out ${i*.3}s infinite`;
  
     el.appendChild(inner);
  
-    // ★ THE FIX: attach click to the target element directly
     el.addEventListener('click', (e) => {
       e.stopPropagation();
       if(S.blocked) return;
@@ -999,7 +984,6 @@ function onShot(el, correct){
   const q = S.shuffled[S.idx];
   const materia = q.materia || 'General';
  
-  // Disable all targets immediately
   document.querySelectorAll('.target').forEach(t => t.style.pointerEvents='none');
  
   if(correct){
@@ -1007,7 +991,8 @@ function onShot(el, correct){
     S.coins += 50;
     const levelChanged = registerAnswer(materia, true);
     let msg = randomFrom(CORRECT_MESSAGES);
-    if(levelChanged === 'up') msg = `⬆️ ¡Subiste de nivel en ${materia}!`;
+    if(levelChanged === 'up'){ msg = `⬆️ ¡Subiste de nivel en ${materia}!`; audioEngine.playLevelUp(); }
+    else { audioEngine.playCorrect(); }
     ftxt.textContent = msg;
     ftxt.style.color = 'var(--green)';
     flash.classList.add('show');
@@ -1020,6 +1005,7 @@ function onShot(el, correct){
   } else {
     el.classList.add('hit-no');
     el.style.animation = 'shake .35s';
+    audioEngine.playWrong();
     registerAnswer(materia, false);
     ftxt.textContent = randomFrom(WRONG_MESSAGES);
     ftxt.style.color = '#ff4444';
@@ -1028,7 +1014,6 @@ function onShot(el, correct){
       flash.classList.remove('show');
       el.classList.remove('hit-no');
       el.style.animation = '';
-      // Re-enable targets so they can try again
       document.querySelectorAll('.target').forEach(t => t.style.pointerEvents='all');
       S.blocked = false;
     }, 800);
@@ -1036,18 +1021,18 @@ function onShot(el, correct){
 }
  
 function endGame(){
+  audioEngine.playVictory();
   document.getElementById('reward-time').textContent = `⏱ ${S.rewardMin} min`;
   document.getElementById('reward-sub').innerHTML = '¡Buen trabajo, explorador!<br>Tu tiempo libre está desbloqueado.';
   show('reward');
 }
  
 // ═══════════════════════════════════════════════
-// PARENT PANEL — REPORTE DE PROGRESO
+// PARENT PANEL
 // ═══════════════════════════════════════════════
 function renderReport(){
   const grid = document.getElementById('report-grid');
  
-  // Lista de todas las materias presentes (en preguntas o en progreso ya guardado)
   const materias = new Set();
   S.questions.forEach(q => materias.add(q.materia || 'General'));
   Object.keys(S.progress).forEach(m => materias.add(m));
@@ -1090,7 +1075,7 @@ document.getElementById('btn-reset-progress').onclick = ()=>{
 };
  
 // ═══════════════════════════════════════════════
-// PARENT PANEL — BANCO DE PREGUNTAS
+// PARENT PANEL — BANCO
 // ═══════════════════════════════════════════════
 function renderParent(){
   document.getElementById('t-val').textContent = S.rewardMin;
@@ -1125,6 +1110,9 @@ function renderParent(){
     div.querySelector('button').onclick = ()=>{ S.questions.splice(i,1); saveData(); renderParent(); };
     list.appendChild(div);
   });
+  
+  // Agregar panel de sonido
+  initAudioControls();
 }
  
 document.getElementById('t-up').onclick   = ()=>{ S.rewardMin=Math.min(120,S.rewardMin+5); document.getElementById('t-val').textContent=S.rewardMin; saveData(); };
@@ -1166,5 +1154,13 @@ document.getElementById('btn-home').onclick        = ()=>show('landing');
 loadData();
 show('landing');
 </script>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- EXTERNAL SCRIPTS: Audio, Lock, Integration -->
+<!-- ═══════════════════════════════════════════════ -->
+<script src="audio-system.js"></script>
+<script src="realtime-lock.js"></script>
+<script src="audio-integration.js"></script>
+
 </body>
 </html>
